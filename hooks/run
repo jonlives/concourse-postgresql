@@ -1,0 +1,10 @@
+psql_path=$(find /hab/pkgs -name 'psql' | tail -n1)
+createdb_path=$(find /hab/pkgs -name 'createdb' | tail -n1)
+echo $psql_path
+echo {{cfg.db_username}}
+if $psql_path -U {{cfg.db_username}} -lqt | cut -d \| -f 1 | grep -qw {{cfg.db_name}}; then
+    echo "Database {{cfg.db_name}} exists, continuing..."
+else
+    echo "Database {{cfg.db_name}} doesn't exist, creating..."
+    $createdb_path -U {{cfg.db_username}} {{cfg.db_name}}
+fi
