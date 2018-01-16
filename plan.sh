@@ -11,9 +11,9 @@ pkg_bin_dirs=(bin)
 pkg_description="CI that scales with your project"
 
 pkg_exports=(
-  [db_username]="admin"
-  [db_password]="admin"
-  [db_name]="atc"
+  [db_username]=db_username
+  [db_password]=db_password
+  [db_name]=db_name
 )
 
 do_build(){
