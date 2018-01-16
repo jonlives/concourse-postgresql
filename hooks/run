@@ -1,10 +1,22 @@
 psql_path=$(find /hab/pkgs -name 'psql' | tail -n1)
 createdb_path=$(find /hab/pkgs -name 'createdb' | tail -n1)
-echo $psql_path
-echo {{cfg.db_username}}
-if $psql_path -U {{cfg.db_username}} -lqt | cut -d \| -f 1 | grep -qw {{cfg.db_name}}; then
+createuser_path=$(find /hab/pkgs -name 'createuser' | tail -n1)
+
+if $psql_path -U {{cfg.db_adminuser}} -lqt | cut -d \| -f 1 | grep -qw {{cfg.db_name}}; then
     echo "Database {{cfg.db_name}} exists, continuing..."
 else
     echo "Database {{cfg.db_name}} doesn't exist, creating..."
-    $createdb_path -U {{cfg.db_username}} {{cfg.db_name}}
+    $createdb_path -U {{cfg.db_adminuser}} {{cfg.db_name}}
 fi
+
+if $psql_path {{cfg.db_name}} -U {{cfg.db_adminuser}} -tAc "SELECT 1 FROM pg_roles WHERE rolname='{{cfg.db_username}}'"; then
+    echo "Username {{cfg.db_username}} exists, continuing..."
+else
+    echo "Username {{cfg.db_username}} doesn't exist, creating..."
+    $createuser_path -U {{cfg.db_adminuser}} {{cfg.db_username}}
+    echo "Granting privileges on {{cfg.db_name}} to {{cfg.db_username}}..."
+    $psql_path {{cfg.db_name}} -U {{cfg.db_adminuser}} -tAc "grant all privileges on database {{cfg.db_name}} to {{cfg.db_username}}"
+fi
+
+sleep infinity
+

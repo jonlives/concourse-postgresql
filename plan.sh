@@ -11,6 +11,7 @@ pkg_bin_dirs=(bin)
 pkg_description="CI that scales with your project"
 
 pkg_exports=(
+  [db_adminuser]=db_adminusers
   [db_username]=db_username
   [db_password]=db_password
   [db_name]=db_name
